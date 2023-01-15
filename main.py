@@ -34,7 +34,9 @@ with app.app_context():
     
 
 posts=[] 
-
+data={}
+data["users"]=[]
+user1={"username":"gokul","posts":[]}
 @app.route("/")
 def hello_world():
     return render_template("login.html")
@@ -44,7 +46,8 @@ def login():
         username=request.form["username"]
         password=request.form["password"]
         print(username,password)
-        return render_template("landing.html")
+        # if data["users"]
+        return render_template("landing.html",data={"posts":[1234]})
     else:
         return render_template("signup.html")
 from models import user
