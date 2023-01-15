@@ -79,6 +79,9 @@ user1={"username":"gokul","posts":[]}
 def hello_world():
     return render_template("login.html")
 
+@app.route("/delete/post/<post_ID>")
+def deletepost():
+    return render_template("confirmdelete.html")
 
 @app.route("/login",methods=["GET","POST"])
 def login():

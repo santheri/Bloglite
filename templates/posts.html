@@ -89,6 +89,10 @@ img {
     <p>Title : {{post.Title}}</p>
     <p>Caption  : {{post.Caption}}</p>
     <img src="{{url_for('static', filename=post.Image_url)}}" alt="post1" width="33%" height="33%" >
+    <br>
+    <a href="/confirmdelete/post/{{post.ID}}">Delete the post</a>
+    <br>
+    <a href="/edit/post/{{post.ID}}">Edit the post</a>
   </div>
   {% endfor %}
 
