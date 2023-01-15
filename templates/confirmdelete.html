@@ -7,9 +7,15 @@
     <title>Confirm Delete</title>
 </head>
 <body>
+
     <h1>Delete Post</h1>
     <h2>Are u sure you want to delete the post?</h2>
-    <a href="/delete/post/confirm/{{data["post_ID"]}}">Yes</a>
-    <a href="/profile/{{data["user"]}}">No</a>
+    <a href="/delete/post/confirmed/{{data["username"]}}/{{data["post_ID"]}}" onclick="myFunction()">Yes</a>
+    <a href="/profile/{{data["username"]}}">No</a>
+    <script>
+        function myFunction() {
+          alert("your post got deleted successfully");
+        }
+        </script>
 </body>
 </html>

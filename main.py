@@ -79,9 +79,22 @@ user1={"username":"gokul","posts":[]}
 def hello_world():
     return render_template("login.html")
 
-@app.route("/delete/post/<post_ID>")
-def deletepost():
-    return render_template("confirmdelete.html")
+@app.route("/confirm/delete/post/<user>/<post_ID>")
+def deletepost(user,post_ID):
+    data["username"]=user
+    data["post_ID"]=post_ID
+    return render_template("confirmdelete.html",data=data)
+
+@app.route("/delete/post/confirmed/<user>/<post_id>")
+def confirmed_delete_post(user,post_id):
+    p1=Post.query.filter(Post.ID==post_id).first()
+    db.session.delete(p1)
+    db.session.commit()
+    flash(f"post with id : {post_id} deleted successfully")
+    return redirect(f"/profile/{user}")
+
+
+
 
 @app.route("/login",methods=["GET","POST"])
 def login():
@@ -141,6 +154,7 @@ def addpost():
     db.session.commit()
     return "post added"
 
+
 @app.route("/getallpost")
 def getallpost():
   
@@ -188,7 +202,6 @@ def add_a_post(user):
     if request.method=="POST":
         title=request.form.get("title")
         caption=request.form.get("caption")
-        img=request.form.get("img")
         file=request.files['img']
         count=User.query.filter(User.Username==user).first()
         count=count.userpost
@@ -204,6 +217,27 @@ def add_a_post(user):
     print(user)
     data["username"]=user
     return render_template("addpost.html",data=data)
+
+
+@app.route("/edit/post/<user>/<post_id>",methods=["GET","POST"])
+def edit_post(user,post_id):
+    if request.method=="POST":
+        print("inside edite post")
+        p1=Post.query.filter(Post.ID==post_id).first()
+        title=request.form.get("title")
+        p1.Title=title
+        file=request.files['img']
+        p1.Caption=request.form.get("caption")
+        filename=user+title+file.filename
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        p1.Image_url=filename
+        db.session.commit()
+        return redirect(f"/profile/{user}")
+    p1=Post.query.filter(Post.ID==post_id).first()
+    data["username"]=user
+    data["post"]=p1
+    print("in edit get request")
+    return render_template("editpost.html",data=data,message=f"edit post id : {post_id}")
 
 if __name__=="__main__":
     app.run(debug=True)

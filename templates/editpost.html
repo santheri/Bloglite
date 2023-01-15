@@ -84,16 +84,16 @@ li a:hover {
 </ul>
 <h1>{{message}}</h1>
 <div class="container">
-    <form action="/add_a_post/{{data["username"]}}" method="POST" enctype=multipart/form-data>
+    <form action="/edit/post/{{data["username"]}}/{{data["post"].ID}}"   method="POST" enctype=multipart/form-data>
   
       <label for="fname"> Post Title</label>
-      <input type="text" id="fname" name="title"   placeholder="Post Title....">
+      <input type="text" id="fname" name="title" value="{{data["post"].Title}}"  placeholder="Post Title....">
   
       
       
   
       <label for="subject">Post Caption / Description</label>
-      <textarea id="subject" name="caption"  placeholder="Write Description.." style="height:200px"></textarea>
+      <textarea id="subject" name="caption"  placeholder="Write Description.." style="height:200px">{{data["post"].Caption}}</textarea>
       
       
 

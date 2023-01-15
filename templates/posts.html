@@ -76,12 +76,19 @@ img {
 <img src="{{url_for('static', filename='avatar.png')}}" align="middle"  alt="Avatar" style="width:150px">
 <br>
 <h3>Total posts : {{ data["posts"]|length }}
+  <h3><a href="/i_follow/{{data["username"]}}" >Followed : {{ data["Followed"]|length }} </a></h3>
+    <h3> <a href="/following_me/{{data["username"]}}  " > Followed By : {{ data["follwed_by"]|length }}
 <br>
 <a class="btn btn-outline-success" href="/add_a_post/{{data["username"]}}" role="button" align="middle">Add new Post</a>
 <br>
 <br>
+
+<h1>{{ message }}</h1>
+
 <h1>My Posts</h1>
   
+
+
 <div class="row">
 
   {% for post in data["posts"] %}
@@ -90,9 +97,9 @@ img {
     <p>Caption  : {{post.Caption}}</p>
     <img src="{{url_for('static', filename=post.Image_url)}}" alt="post1" width="33%" height="33%" >
     <br>
-    <a href="/confirmdelete/post/{{post.ID}}">Delete the post</a>
+    <a href="/confirm/delete/post/{{data["username"]}}/{{post.ID}}">Delete the post</a>
     <br>
-    <a href="/edit/post/{{post.ID}}">Edit the post</a>
+    <a href="/edit/post/{{data["username"]}}/{{post.ID}}">Edit the post</a>
   </div>
   {% endfor %}
 
