@@ -75,6 +75,7 @@ img {
 
 <img src="{{url_for('static', filename='avatar.png')}}" align="middle"  alt="Avatar" style="width:150px">
 <br>
+<h3>Total posts : {{ data["posts"]|length }}
 <br>
 <a class="btn btn-outline-success" href="/add_a_post/{{data["username"]}}" role="button" align="middle">Add new Post</a>
 <br>
@@ -87,38 +88,11 @@ img {
   <div class="column">
     <p>Title : {{post.Title}}</p>
     <p>Caption  : {{post.Caption}}</p>
-    <img src="{{url_for('static', filename=post.Image_url)}}" alt="post1" style="width:50%">
+    <img src="{{url_for('static', filename=post.Image_url)}}" alt="post1" width="33%" height="33%" >
   </div>
   {% endfor %}
 
 
-    <div class="column"> 
-
-      <img src="{{url_for('static', filename='avatar.png')}}" alt="post1" style="width:50%">
-    </div>
-    <div class="column">
-      <img src="{{url_for('static', filename='avatar.png')}}" alt="post2" style="width:50%">
-    </div>
-    <div class="column">
-      <img src="{{url_for('static', filename='avatar.png')}}" alt="post3" style="width:50%">
-    </div>
-  </div>
-  <div class="row">
-    <div class="column">
-      <img src="{{url_for('static', filename='avatar.png')}}" alt="post1" style="width:50%">
-    </div>
-    <div class="column">
-      <img src="{{url_for('static', filename='avatar.png')}}" alt="post2" style="width:50%">
-    </div>
-    <div class="column">
-      <img src="{{url_for('static', filename='avatar.png')}}" alt="post3" style="width:50%">
-    </div>
-    <div class="column">
-      <img src="{{url_for('static', filename='avatar.png')}}" alt="post3" style="width:50%">
-    </div>
-    <div class="column">
-      <img src="{{url_for('static', filename='avatar.png')}}" alt="post3" style="width:50%">
-    </div>
   </div>
 </div>
 </body>
