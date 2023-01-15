@@ -73,7 +73,7 @@ li a:hover {
 }
 </style>   
 <div class="head">
-    <h1>Welcome User!</h1>
+    <h1>Welcome {{data["username"]}}!</h1>
 </div>
 
 <ul>
@@ -84,23 +84,23 @@ li a:hover {
 </ul>
 
 <div class="container">
-    <form action="action_page.php">
+    <form action="/add_a_post/{{data["username"]}}" method="POST" enctype=multipart/form-data>
   
-      <label for="fname"> Name</label>
-      <input type="text" id="fname" name="name" placeholder="Your name..">
+      <label for="fname"> Post Title</label>
+      <input type="text" id="fname" name="title" placeholder="Post Title....">
   
       
       
   
-      <label for="subject">Subject</label>
-      <textarea id="subject" name="subject" placeholder="Write Description.." style="height:200px"></textarea>
+      <label for="subject">Post Caption / Description</label>
+      <textarea id="subject" name="caption" placeholder="Write Description.." style="height:200px"></textarea>
       
       
 
       <p>Click on the "Choose File" button to upload an image:</p>
 
       
-        <input type="file" id="upload" name="upload">
+        <input type="file" id="upload" name="img">
         
       <br>
       <br>

@@ -1,33 +1,71 @@
 import datetime
-from flask import Flask,request,render_template
+from flask import Flask, flash, redirect,request,render_template,session
 from flask_sqlalchemy import SQLAlchemy
+from flask_session import Session
+from sqlalchemy.ext.hybrid import hybrid_property
+import os
 
 # create the extension
 db = SQLAlchemy()
+
+UPLOAD_FOLDER = './static'
+
+# SESSION_TYPE = 'memcache'
+
 # create the app
+PEOPLE_FOLDER = os.path.join('static', 'people_photo')
 app = Flask(__name__)
+app.config["SESSION_PERMANENT"] = False
+app.secret_key = 'super secret key'
+app.config['SESSION_TYPE'] = 'filesystem'
 # configure the SQLite database, relative to the app instance folder
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project_santh.db"
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # initialize the app with the extension
 db.init_app(app)
-
-
+Session(app)
+from sqlalchemy import ForeignKey
+from sqlalchemy import DateTime
 class Post(db.Model):
+    __tablename__="post"
     ID= db.Column(db.Integer, primary_key=True)
     Title=db.Column(db.String, unique=False, nullable=False)
     Caption=db.Column(db.String, unique=False, nullable=True)
     Image_url=db.Column(db.String, unique=False, nullable=True)
-    Timestamp=db.Column(db.String, unique=True, nullable=False)
-    user_Username = db.Column(db.String, db.ForeignKey('user.Username'),
-        nullable=False)
-  
+    post_timestamp=db.Column(DateTime,default=datetime.datetime.now)
+    post_user = db.Column(db.String, ForeignKey('user.Username',ondelete="CASCADE"),nullable=False)
+    # post_user_rel = db.relationship("User", backref="post")
+    
+    
+user_follows = db.Table('user_follows',
+    db.Column('follower_name', db.Integer, db.ForeignKey('user.Username')),
+    db.Column('followed_name', db.Integer, db.ForeignKey('user.Username'))
+)
+# class User_follows(db.Model):
+#     __tablename__="followers"
+#     follower_name=db.Column(db.String, db.ForeignKey('user.Username'),primary_key=True),
+#     followed_name=db.Column(db.String, db.ForeignKey('user.Username'),primary_key=True)
+
+
 class User(db.Model):
+    __tablename__="user"
     Username=db.Column(db.String, primary_key=True)
     Password=db.Column(db.String, unique=False, nullable=False)
-    No_of_followers=db.Column(db.Integer, unique=False, nullable=False,default=0)
-    No_of_posts=db.Column(db.Integer, unique=False, nullable=False,default=0)
-    user_posts = db.relationship('Post', backref='user', lazy=True) #hidden
-
+    # No_of_followers=db.Column(db.Integer, unique=False, nullable=False,default=0)
+    # No_of_posts=db.Column(db.Integer, unique=False, nullable=False,default=0)
+    # user_follows=db.Column(db.String,db.ForeignKey('user.Username'),default="")
+    # following_user=db.Column(db.String,db.ForeignKey('user.Username'),default="")
+    # user_following = db.relationship('User_follows', backref='user', lazy=True) #hidden
+    userpost = db.relationship("Post", backref="user",cascade="all, delete")
+    followed = db.relationship(
+        'User', secondary=user_follows,
+        primaryjoin=(user_follows.c.follower_name == Username),
+        secondaryjoin=(user_follows.c.followed_name == Username),
+        backref=db.backref('user_follows', lazy='dynamic'), lazy='dynamic')
+    @hybrid_property
+    def No_of_followers(self):
+        x=self.following_user
+        return len(self.following_user)
 
 with app.app_context():
     db.create_all()
@@ -40,18 +78,29 @@ user1={"username":"gokul","posts":[]}
 @app.route("/")
 def hello_world():
     return render_template("login.html")
+
+
 @app.route("/login",methods=["GET","POST"])
 def login():
     if request.method=="POST":
         username=request.form["username"]
         password=request.form["password"]
-        print(username,password)
-        # if data["users"]
-        return render_template("landing.html",data={"posts":[1234]})
+        u1=User.query.filter(User.Username==username).first()
+        if not u1:
+            return render_template("login.html",message="user not found")
+        else:
+
+            data["username"]=u1.Username
+            session["name"] = username
+            return render_template("home.html",message="There are no posts in your feed.Connect with other users to see what they are posting",data=data)
     else:
         return render_template("signup.html")
-from models import user
-users=[]
+    
+@app.route("/logout")
+def logout():
+    session["name"] = None
+    return redirect("/")
+
 
 @app.route("/signup",methods=["GET","POST"])
 def signup():
@@ -59,14 +108,16 @@ def signup():
         username=request.form["username"]
         password=request.form["password"]
         confirmpassword=request.form["confirm-password"]
-        print(username)
-        print(password)
-        print(confirmpassword)
+        
+        # print(username)
+        # print(password)
+        # print(confirmpassword)
         if password==confirmpassword:
-            u1=user(username,password)
-            users.append(u1)
-            print(users)
-            return render_template("login.html")
+            u1=User(Username=username,Password=password)
+            db.session.add(u1)
+            db.session.commit()
+            # print(users)
+            return render_template("login.html",message="user created successfully.Now you can login")
         else:
             return render_template("signup.html",message="Passwords doesn't match")
         print(username,password)
@@ -110,5 +161,46 @@ def adduser():
     db.session.add(user)
     db.session.commit()
     return "user added"
+
+@app.route("/profile/<user>",methods=["GET","POST"])
+def profile(user):
+    print("inside path parameter")
+    print("user",user)
+    data["username"]=user
+    u1=User.query.filter(User.Username==user).first()
+    print(u1)
+    # print(u1.Username)
+    x=u1.userpost
+    for i in x:
+        print(i.ID)
+        print(i.Title)
+        print(i.Caption)
+        print(i.Image_url)
+    data["posts"]=x
+    
+    return render_template("posts.html",data=data)
+
+@app.route("/add_a_post/<user>",methods=["GET","POST"])
+def add_a_post(user):
+    if request.method=="POST":
+        title=request.form.get("title")
+        caption=request.form.get("caption")
+        img=request.form.get("img")
+        file=request.files['img']
+        count=User.query.filter(User.Username==user).first()
+        count=count.userpost
+        print(count)
+        filename=user+title+file.filename
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        p1=Post(Title=title,Caption=caption,Image_url=filename,post_user=user)
+        db.session.add(p1)
+        db.session.commit()
+        data["username"]=user
+        return redirect(f"/profile/{user}")
+        
+    print(user)
+    data["username"]=user
+    return render_template("addpost.html",data=data)
+
 if __name__=="__main__":
     app.run(debug=True)

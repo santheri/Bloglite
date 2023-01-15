@@ -37,15 +37,15 @@ li a:hover {
 </head>
 <body>
 <div class="head">
-    <h1>Welcome User!</h1>
+    <h1>Welcome {{ data["username"] }}!</h1>
 </div>
 
 <ul>
    
   <li><a class="active" href="#search">Search</a></li>
-  <li><a href="#myprofile">My Profile</a></li>
+  <li><a href="/profile/{{data["username"]}}">My Profile</a></li>
   <li><a href="#logout">Logout</a></li>
 </ul>
-
+ <h1> {{ message }} </h1>
 </body>
 </html>
